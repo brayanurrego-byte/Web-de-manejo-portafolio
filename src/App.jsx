@@ -240,7 +240,7 @@ function DonutChart({canvasId,labels,data,colors,total,theme}){
     chartRef.current=new window.Chart(ctx,{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:t.bg,borderWidth:3,hoverOffset:10,hoverBorderColor:t.card}]},options:{responsive:true,maintainAspectRatio:true,cutout:"72%",animation:{duration:600,easing:"easeInOutQuart"},plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>` ${ctx.label}: ${fmt(ctx.raw)} (${total>0?(ctx.raw/total*100).toFixed(1):0}%)`},backgroundColor:t.card,borderColor:t.border,borderWidth:1,titleColor:t.text,bodyColor:t.muted,padding:12}}}});
     return()=>{if(chartRef.current)chartRef.current.destroy();};
   },[canvasId,JSON.stringify(labels),JSON.stringify(data),JSON.stringify(colors),total,theme]);
-  return <canvas id={canvasId} style={{maxHeight:200}}/>;
+  return <canvas id={canvasId} style={{maxHeight:170}}/>;
 }
 
 function RiskGauge({score,label,color,theme}){
@@ -611,7 +611,7 @@ function Dashboard({portfolioId,portfolioName,onLogout,theme,toggleTheme}){
         </div>
 
         {activeTab==="analysis"?(<AnalysisPanel portfolio={portfolio} theme={theme}/>):(
-          <div style={{display:"grid",gridTemplateColumns:"1fr 370px",gap:24}}>
+          <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) 340px",gap:24}}>
             <div style={{display:"flex",flexDirection:"column",gap:24}}>
               <div style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:16,overflow:"hidden",boxShadow:`0 2px 12px ${t.shadow}`}}>
                 <div style={{padding:"15px 24px",borderBottom:`1px solid ${t.border}`,display:"flex",alignItems:"center",gap:8}}>
@@ -635,7 +635,7 @@ function Dashboard({portfolioId,portfolioName,onLogout,theme,toggleTheme}){
                     <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Buscar..." style={{...inputS,width:150,padding:"6px 12px",fontSize:12}} onFocus={e=>e.currentTarget.style.borderColor=t.accent} onBlur={e=>e.currentTarget.style.borderColor=t.border}/>
                   </div>
                 </div>
-                <div style={{overflowX:"auto"}}>
+                <div style={{overflowX:"auto",minWidth:0}}>
                   {loadingData?(<div style={{textAlign:"center",padding:"40px",color:t.muted,fontSize:14}}>⏳ Cargando portafolio desde la nube...</div>):(
                     <table style={{width:"100%",borderCollapse:"collapse"}}>
                       <thead><tr>
@@ -677,7 +677,7 @@ function Dashboard({portfolioId,portfolioName,onLogout,theme,toggleTheme}){
             </div>
 
             <div style={{display:"flex",flexDirection:"column",gap:24}}>
-              {[{title:"Por Activo",cId:"chartAssets",labels:assetLabels,data:assetData,colors:assetColors,legend:portfolio.map(a=>({label:a.ticker,color:a.color||ASSET_PALETTE[0],val:a.shares*a.price}))},{title:"Por Sector",cId:"chartSectors",labels:sectorLabels,data:sectorData,colors:sectorColors,legend:sectorLabels.map((s,i)=>({label:s,color:sectorColors[i],val:sectorData[i]}))}].map(c=>(<div key={c.cId} style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:16,overflow:"hidden",boxShadow:`0 2px 12px ${t.shadow}`}}><div style={{padding:"15px 24px",borderBottom:`1px solid ${t.border}`}}><span style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:t.text}}>{c.title}</span></div><div style={{padding:"16px 24px"}}>{chartReady&&c.data.length>0?(<><div style={{display:"flex",justifyContent:"center",marginBottom:10}}><DonutChart canvasId={c.cId} labels={c.labels} data={c.data} colors={c.colors} total={totalCurrent} theme={theme}/></div><div style={{display:"flex",flexDirection:"column",gap:5,maxHeight:150,overflowY:"auto"}}>{[...c.legend].sort((a,b)=>b.val-a.val).map(item=>{const pct=totalCurrent>0?(item.val/totalCurrent*100):0;return(<div key={item.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontFamily:"'DM Mono',monospace",fontSize:12}}><div style={{display:"flex",alignItems:"center",gap:7}}><div style={{width:8,height:8,borderRadius:2,background:item.color,flexShrink:0,boxShadow:`0 0 5px ${item.color}88`}}/><span style={{color:t.muted2}}>{item.label}</span></div><div style={{display:"flex",gap:8}}><span style={{color:t.text,fontWeight:500}}>{pct.toFixed(1)}%</span><span style={{color:t.muted,fontSize:11,minWidth:68,textAlign:"right"}}>{fmt(item.val)}</span></div></div>);})}</div></>):(<div style={{textAlign:"center",padding:"40px 0",color:t.muted,fontSize:13,fontStyle:"italic"}}>{chartReady?"Sin datos aún":"Cargando..."}</div>)}</div></div>))}
+              {[{title:"Por Activo",cId:"chartAssets",labels:assetLabels,data:assetData,colors:assetColors,legend:portfolio.map(a=>({label:a.ticker,color:a.color||ASSET_PALETTE[0],val:a.shares*a.price}))},{title:"Por Sector",cId:"chartSectors",labels:sectorLabels,data:sectorData,colors:sectorColors,legend:sectorLabels.map((s,i)=>({label:s,color:sectorColors[i],val:sectorData[i]}))}].map(c=>(<div key={c.cId} style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:16,overflow:"hidden",boxShadow:`0 2px 12px ${t.shadow}`}}><div style={{padding:"15px 24px",borderBottom:`1px solid ${t.border}`}}><span style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:t.text}}>{c.title}</span></div><div style={{padding:"16px 24px"}}>{chartReady&&c.data.length>0?(<><div style={{display:"flex",justifyContent:"center",marginBottom:10}}><DonutChart canvasId={c.cId} labels={c.labels} data={c.data} colors={c.colors} total={totalCurrent} theme={theme}/></div><div style={{display:"flex",flexDirection:"column",gap:5,maxHeight:120,overflowY:"auto"}}>{[...c.legend].sort((a,b)=>b.val-a.val).map(item=>{const pct=totalCurrent>0?(item.val/totalCurrent*100):0;return(<div key={item.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontFamily:"'DM Mono',monospace",fontSize:12}}><div style={{display:"flex",alignItems:"center",gap:7}}><div style={{width:8,height:8,borderRadius:2,background:item.color,flexShrink:0,boxShadow:`0 0 5px ${item.color}88`}}/><span style={{color:t.muted2}}>{item.label}</span></div><div style={{display:"flex",gap:8}}><span style={{color:t.text,fontWeight:500}}>{pct.toFixed(1)}%</span><span style={{color:t.muted,fontSize:11,minWidth:68,textAlign:"right"}}>{fmt(item.val)}</span></div></div>);})}</div></>):(<div style={{textAlign:"center",padding:"40px 0",color:t.muted,fontSize:13,fontStyle:"italic"}}>{chartReady?"Sin datos aún":"Cargando..."}</div>)}</div></div>))}
 
               <div style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:16,overflow:"hidden",boxShadow:`0 2px 12px ${t.shadow}`}}>
                 <div style={{padding:"15px 24px",borderBottom:`1px solid ${t.border}`}}><span style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:700,color:t.text}}>Resumen</span></div>
